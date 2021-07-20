@@ -87,7 +87,7 @@ function colorit {
         #colorit '^|[[:space:]]|[^[:alnum:][:cntrl:].:;_,]' '[0-9]{1,3}(,[0-9]{3}){1,}|0x[a-f0-9]+|#?0|([a-f0-9]{2} ?){4,}|#?[1-9][0-9]*(\.[0-9]+){0,1}' '[^[:alnum:][:cntrl:].;:_,]|[[:space:]]|$' dim # frustratingly doesn't highlight final hex pair if spaced
         #colorit '^|[[:space:],]|[^[:alnum:][:cntrl:].:;_]' '[0-9]{1,3}(,[0-9]{3})+|0x[a-f0-9]+|#?0|([a-f0-9]{2}){4,}|#?[1-9][0-9]*(\.[0-9]+){0,1}' '[^[:alnum:][:cntrl:].;:_]|[[:space:]]|$' dim # frustratingly doesn't highlight final hex pair if spaced
         #colorit '^|[[:space:],]|[^[:alnum:][:cntrl:].:;_-]' '(-?[1-9][0-9]{0,2}(,[0-9]{3})+|0|-?[0-9]|-|[#-]?[1-9][0-9]*)(\.[0-9]+)?|(0x[a-f0-9]+,?-?)+|[a-f0-9]{2}( ?[a-f0-9]{2}){3,}' ${escmatch}'|[/[:space:],)]|$' dim # without escmatch frustratingly may not highlight final hex pair if spaced?
-        colorit '^|[[:space:],]|[^[:alnum:][:cntrl:].:;_-]' '(-?[1-9][0-9]{0,2}(,[0-9]{3})+|0|-?[0-9]|-|[#-]?[1-9][0-9]*)(\.[0-9]+)?|(0x[a-f0-9]+,?-?)+|[a-f0-9]{2}( ?[a-f0-9]{2}){3,}' ${escmatch}'|\b' dim # without escmatch frustratingly may not highlight final hex pair if spaced?
+        colorit '^|[[:space:],]|[^[:alnum:][:cntrl:].:;_-]' '(-?[1-9][0-9]{0,2}(,[0-9]{3})+|0|-?[0-9]|-|[#-]?[1-9][0-9]*)(\.[0-9]+)?|(0x[a-f0-9]+,?-?)+|[a-f0-9]{2}( ?[a-f0-9]{2}){3,}' ${escmatch}'|[]/[:space:],)]|$' dim # without escmatch frustratingly may not highlight final hex pair if spaced?
         # ^ general stand-alone numbers
         #colorit '^|[^[:alnum:][:cntrl:][:space:].:;_]|[[:space:]]' '[a-f0-9]{2}( ?[a-f0-9]{2}){2,}[a-f0-9]{2}' '[^[:alnum:][:cntrl:][:space:].;:_]|[[:space:]]|$' red
         ###colorit '^|[[:space:]]' '[0-9]+(\.[0-9]+){0,1}' '[[:space:]]|$' dim
