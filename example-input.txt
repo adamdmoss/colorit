@@ -1,0 +1,14 @@
+NAME                       USED  AVAIL     REFER  MOUNTPOINT
+backups-tank               2.23T  3.10T      236K  /backups
+backups-tank/backups       2.23T  3.10T     2.13T  /backups/backups
+[    0.000000] microcode: microcode updated early to revision 0x21, date = 2019-02-13
+[    0.000000] Linux version 5.8.0-59-lowlatency (buildd@lcy01-amd64-022) (gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #66~20.04.1-Ubuntu SMP PREEMPT Thu Jun 17 13:03:02 UTC 2021 (Ubuntu 5.8.0-59.66~20.04.1-lowlatency 5.8.18)
+[    0.000000] KERNEL supported cpus:
+[    0.000000]   Intel GenuineIntel
+[    8.010964] Run /init as init process
+[    8.010965]   with arguments:
+[    8.010966]     /init
+[    8.010967]   with environment:
+[    8.010968]     BOOT_IMAGE=/boot/vmlinuz-5.8.0-59-lowlatency
+[38463.715709] BUG: scheduling while atomic: cpuhp/7/51/0x00000002
+002c:Call KERNEL32.WideCharToMultiByte(00000000,00000000,00420108 L"C:\\windows\\system32\\wineboot.exe",ffffffff,00340848,00000028,00000000,00000000) ret=3af68c8ea
