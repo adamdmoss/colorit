@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#set -v
 shopt -s extglob
 
 #SEDOPT=-u
@@ -87,7 +88,7 @@ function colorit {
         #colorit '^|[[:space:]]|[^[:alnum:][:cntrl:].:;_,]' '[0-9]{1,3}(,[0-9]{3}){1,}|0x[a-f0-9]+|#?0|([a-f0-9]{2} ?){4,}|#?[1-9][0-9]*(\.[0-9]+){0,1}' '[^[:alnum:][:cntrl:].;:_,]|[[:space:]]|$' dim # frustratingly doesn't highlight final hex pair if spaced
         #colorit '^|[[:space:],]|[^[:alnum:][:cntrl:].:;_]' '[0-9]{1,3}(,[0-9]{3})+|0x[a-f0-9]+|#?0|([a-f0-9]{2}){4,}|#?[1-9][0-9]*(\.[0-9]+){0,1}' '[^[:alnum:][:cntrl:].;:_]|[[:space:]]|$' dim # frustratingly doesn't highlight final hex pair if spaced
         #colorit '^|[[:space:],]|[^[:alnum:][:cntrl:].:;_-]' '(-?[1-9][0-9]{0,2}(,[0-9]{3})+|0|-?[0-9]|-|[#-]?[1-9][0-9]*)(\.[0-9]+)?|(0x[a-f0-9]+,?-?)+|[a-f0-9]{2}( ?[a-f0-9]{2}){3,}' ${escmatch}'|[/[:space:],)]|$' dim # without escmatch frustratingly may not highlight final hex pair if spaced?
-        colorit '^|[[:space:],]|[^[:alnum:][:cntrl:].:;_-]' '(-?[1-9][0-9]{0,2}(,[0-9]{3})+|0|-?[0-9]|-|[#-]?[1-9][0-9]*)(\.[0-9]+)?|(0x[a-f0-9]+,?-?)+|[a-f0-9]{2}( ?[a-f0-9]{2}){3,}' ${escmatch}'|[]/[:space:],)]|$' dim # without escmatch frustratingly may not highlight final hex pair if spaced?
+        colorit '^|[[:space:],:]|[^[:alnum:][:cntrl:].:;_-]' '(-?[1-9][0-9]{0,2}(,[0-9]{3})+|0|-?[0-9]|-|[#-]?[1-9][0-9]*)(\.[0-9]+)?|(0x[a-f0-9]+,?-?)+|[a-f0-9]{2}( ?[a-f0-9]{2}){3,}' ${escmatch}'|[]/[:space:],)]|$' dim # without escmatch frustratingly may not highlight final hex pair if spaced?
         # ^ general stand-alone numbers
         #colorit '^|[^[:alnum:][:cntrl:][:space:].:;_]|[[:space:]]' '[a-f0-9]{2}( ?[a-f0-9]{2}){2,}[a-f0-9]{2}' '[^[:alnum:][:cntrl:][:space:].;:_]|[[:space:]]|$' red
         ###colorit '^|[[:space:]]' '[0-9]+(\.[0-9]+){0,1}' '[[:space:]]|$' dim
@@ -101,7 +102,7 @@ function colorit {
         colorit '^[[:space:]]*' '#.*|\/\/.*' '' dim
         # ^ single-line comments
         #colorit '^|[[:space:]=>''"]' "\.{0,2}(\/[^[:space:]/'\"]+)+\/?" '[[:space:]''"]|$' yellow
-        colorit "^|[[:space:]=>'\"]" "\.{0,2}([/\\][^[:space:]*?/'\"]+)+[/\\]?" "[[:space:]:'\"]|$" yellow
+        colorit "^|[[:space:]=>'\"]" "\[?(([a-z]:)?|\.{0,2})([/\\][^[:space:]?/'\"]+)+[/\\]?\]?" "[[:space:]:'\"]|$" yellow
         # ^ paths in optional '' (hmm, something wrong with escaping '? had to switch quotes and escape " instead)
         colorit '^[[:space:]]{0,}' '(%?[[:alpha:]][_/:]?[[:alpha:]]{1,}(%|[0-9])?[[:space:]]{2,200}%?[[:alpha:]]{0,}){2,}' '[[:space:]]{0,}$' underline
         # ^ table headings
@@ -164,20 +165,29 @@ function colorit {
     a_colorendnames+=(${colorendname})
 }
 
-colorit "$@"
+#colorit "$@"
+colorit
 
 cmd=(sed ${SEDOPT} -E)
-cmd+=( -e s/\\r$//) # dos2unix
+cmd+=(-e s/\\r$//) # dos2unix
 for ix in ${!a_matchstrings[*]}
 do
     thiscmd=-e\ "s/((${a_lookaheads[$ix]})(${a_matchstrings[$ix]})(${a_lookbehinds[$ix]}))/\2${!a_colornames[$ix]}\3${!a_colorendnames[$ix]}\\${a_lookbehindcaptures[$ix]}/gI"
+    #cmd+=($(printf %b \|))
+    #cmd+=(sed ${SEDOPT} -E)
     cmd+=("${thiscmd}")
     if [[ "" != "${a_lookbehinds[$ix]}" ]]; then
         # second pass for highlights using lookbehind so we can pick up patterns whose lookahead/match expects the lookbehind to have not been consumed
+        #cmd+=(\|sed ${SEDOPT} -E)
         cmd+=("${thiscmd}")
     fi
     #printf "%d: %s : %s : %s : %s : %s : %s\n" $ix "${a_lookaheads[$ix]}" "${a_matchstrings[$ix]}" "${a_lookbehinds[$ix]}" "${a_colornames[$ix]}" "${a_colorendnames[$ix]}" "${a_lookbehindcaptures[$ix]}"
 done
 
 #printf "%s" "${cmd[*]}"
-exec "${cmd[@]}" </dev/stdin
+#printf -v XXX %q "${cmd[*]}"
+exec -l "${cmd[@]}" </dev/stdin
+#eval ${XXX}
+#printf %b "${cmd[*]}"
+#printf %b "${cmd[*]}"
+#printf "%s" "${XXX}"
