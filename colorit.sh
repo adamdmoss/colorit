@@ -93,6 +93,9 @@ function colorit {
         # ^ long-form date/time.  not really in love with how this still gets processed by the below stand-alone numbers line
         colorit '^|[[:space:](]' '[0-9]+(\.[0-9]+){0,1}' '( ){0,1}([gtmkpx](b|ib)?|[%])(ps|\/s(ec)?)?([,[:space:])]|$)' cyan
         # ^ sizes w/units
+        colorit '^' '-($|[^0-9\-].*)' '' red
+        colorit '^' '\+' '($|[^+])' green
+        # ^ stab at patch +/-
         ###colorit '^|[[:space:]]|[^[:alnum:][:cntrl:].:;_]' '0x[a-f0-9]+|#?0|([a-f0-9]{2} ?){4,}|#?[1-9][0-9]*(\.[0-9]+){0,1}' '[^[:alnum:][:cntrl:].;:_]|[[:space:]]|$' dim
         ###colorit '^|[[:space:]]|[^[:alnum:][:cntrl:].:;_]' '0x[a-f0-9]+|#?0|([a-f0-9 ]){2,3}+|xxx#?[1-9][0-9]*(\.[0-9]+){0,1}xxx' '$|[^[:alnum:][:cntrl:][:space:].;:_]' red
         #colorit '^|[[:space:]]|[^[:alnum:][:cntrl:].:;_,]' '[0-9]{1,3}(,[0-9]{3}){1,}|0x[a-f0-9]+|#?0|([a-f0-9]{2} ?){4,}|#?[1-9][0-9]*(\.[0-9]+){0,1}' '[^[:alnum:][:cntrl:].;:_,]|[[:space:]]|$' dim # frustratingly doesn't highlight final hex pair if spaced
@@ -110,10 +113,10 @@ function colorit {
         colorit '[^a-z]\(' '[^\(\)]+' '\)' dim
         colorit '[^'${ESC}']' '\[[^][]+\]|<[^<>]+>|\{[^{}]+\}' '' dim
         # ^ things in various brackets
-        colorit '^[[:space:]]*' '#.*|\/\/.*' '' dim
-        # ^ single-line comments
-        #colorit '^|[[:space:]=>''"]' "\.{0,2}(\/[^[:space:]/'\"]+)+\/?" '[[:space:]''"]|$' yellow
-        colorit "^|[[:space:]=>'\"]" "\[?(([a-z]:)?|\.{0,2})([/\\][^[:space:]?/'\"]+)+[/\\]?\]?" "[[:space:]:'\"]|$" yellow
+        colorit '' '^[[:space:]]*#([^0-9].*|$)|[[:space:]]\/\/(.|$).*' '' dim
+        # ^ single-line comments, or ' // ...'
+        #colorit "^|[[:space:]=>'\"]" "\[?(([a-z]:)?|\.{0,2})([/\\][^|[:space:]?/'\"]+)+[/\\]?\]?" "[|[:space:]:'\"]|$" yellow
+        colorit "^|[[:space:]=>'\"]" "\[?(([a-z]:)?|\.{0,2})([/\\][^*|[:space:]?/'\"]+)+[/\\]?\]?" "[|[:space:]:'\"]|$" yellow
         # ^ paths in optional '' (hmm, something wrong with escaping '? had to switch quotes and escape " instead)
         colorit '^[[:space:]]{0,}' '(%?[[:alpha:]][_/:]?[[:alpha:]]{1,}(%|[0-9])?[[:space:]]{2,200}%?[[:alpha:]]{0,}){2,}' '[[:space:]]{0,}$' underline
         # ^ table headings
@@ -129,13 +132,15 @@ function colorit {
         # ^ ipv6
         colorit '[(=,[:space:]]|^' '(`[^`]*`)|('\''[^'\'']*'\'')|(L?)"(\\"|[^"])*"|([a-z_][[:alnum:]_]*::)+[a-z_][[:alnum:]_]*' '[]),'${ESC}'[:space:]]|$' brightyellow
         # ^ L"string" or "string" or "str\"ing" or `string` ORRRR foo::bar enum name
-        colorit '[[:space:]\(]|^' '[a-z_][[:alnum:]_:]*' '\(([^s\)][^\)]*|s[^\)]+)?' green
+        colorit '[[:space:]\(&|.]|->|^' '[a-z_]((::)?[[:alnum:]_:])*' '\(([^s\)][^\)]*|s[^\)]+)?' green
         # ^ function name, but not foo(s) plural text form
         #colorit "${escmatch}"'[a-z_][[:alnum:]_:]*'"${escmatch}"'\(' '[a-z_][[:alnum:]_]*' '\)' underline
-        colorit '\b|[|&]' '[a-z]([[:alnum:]]*_[[:alnum:]]+)+' ${ESC}'|[[:space:],|&;)]|$' brightblue
+        colorit '\b|[|&]'"${ESC}.*m" '[a-z]([[:alnum:]]*_[[:alnum:]]+)+' ${ESC}'|[[:space:],|&;)]|$' brightblue
         # ^ FOO_BAR_BAZ (e.g. enum)
         colorit "${escmatch}"'[a-z_][[:alnum:]_:]*'"${escmatch}"'\(' '[^\)\(]+' '\)' cyan
         # ^ general params after function name (incl. escseq), overkill?
+        colorit '^---|^\+\+\+|^diff [^\/]*' '([[:space:]]+([^[:space:]]*\/)+[^[:space:]]*){1,}' '$' magenta
+        # ^ diff header
         return
     fi
     
@@ -211,6 +216,11 @@ do
     fi
     #printf "%d: %s : %s : %s : %s : %s : %s\n" $ix "${a_lookaheads[$ix]}" "${a_matchstrings[$ix]}" "${a_lookbehinds[$ix]}" "${a_colornames[$ix]}" "${a_colorendnames[$ix]}" "${a_lookbehindcaptures[$ix]}"
 done
+
+# prototyping an absolute slippery slope where two identical nested highlights don't erroneously reset in the middle
+dumbed_dim="${ESC}\[02m"
+dumbed_resetdim="${ESC}\[22m"
+cmd+=(-e "s/(${dumbed_dim})([^${ESC}]*)\1([^${ESC}]*)(${dumbed_resetdim})([^${ESC}]*)\4/\1\2\3\5/" )
 
 #printf "%s" "${cmd[*]}"
 #printf -v XXX %q "${cmd[*]}"
