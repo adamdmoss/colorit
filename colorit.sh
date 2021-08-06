@@ -129,10 +129,10 @@ function colorit {
         # ^ ipv6
         colorit '[(=,[:space:]]|^' '(`[^`]*`)|('\''[^'\'']*'\'')|(L?)"(\\"|[^"])*"|([a-z_][[:alnum:]_]*::)+[a-z_][[:alnum:]_]*' '[]),'${ESC}'[:space:]]|$' brightyellow
         # ^ L"string" or "string" or "str\"ing" or `string` ORRRR foo::bar enum name
-        colorit '[[:space:]]|^' '[a-z_][[:alnum:]_:]*' '\(([^s\)][^\)]*|s[^\)]+)?\)' green
+        colorit '[[:space:]\(]|^' '[a-z_][[:alnum:]_:]*' '\(([^s\)][^\)]*|s[^\)]+)?' green
         # ^ function name, but not foo(s) plural text form
         #colorit "${escmatch}"'[a-z_][[:alnum:]_:]*'"${escmatch}"'\(' '[a-z_][[:alnum:]_]*' '\)' underline
-        colorit '\b|[|&]' '[a-z]([[:alnum:]]*_[[:alnum:]]+)+' ${ESC}'|[[:space:],|&)]|$' brightblue
+        colorit '\b|[|&]' '[a-z]([[:alnum:]]*_[[:alnum:]]+)+' ${ESC}'|[[:space:],|&;)]|$' brightblue
         # ^ FOO_BAR_BAZ (e.g. enum)
         colorit "${escmatch}"'[a-z_][[:alnum:]_:]*'"${escmatch}"'\(' '[^\)\(]+' '\)' cyan
         # ^ general params after function name (incl. escseq), overkill?
