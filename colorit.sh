@@ -93,9 +93,12 @@ function colorit {
         # ^ long-form date/time.  not really in love with how this still gets processed by the below stand-alone numbers line
         colorit '^|[[:space:](]' '[0-9]+(\.[0-9]+){0,1}' '( ){0,1}([gtmkpx](b|ib)?|[%])(ps|\/s(ec)?)?([,[:space:])]|$)' cyan
         # ^ sizes w/units
-        colorit '^' '-($|[^0-9\-].*)' '' red
+        #not avoiding -rwx: colorit '^' '-($|[^rwx0-9\-]{1,3}.*)' '' red
+        colorit '^' '-($|([^r0-9\-]|[r\-][^w\-]|[r\-][w\-][^x\-]).*)' '' red
         colorit '^' '\+' '($|[^+])' green
-        # ^ stab at patch +/-
+        # ^ stab at patch +/- but avoiding -rwx a la ls
+        colorit '[[:space:]]|^' '[ld\-]([r\-][w\-][tsx\-]){3}\+?' '[[:space:]]|$' cyan
+        # ^ stab at drwxrwxr-x
         ###colorit '^|[[:space:]]|[^[:alnum:][:cntrl:].:;_]' '0x[a-f0-9]+|#?0|([a-f0-9]{2} ?){4,}|#?[1-9][0-9]*(\.[0-9]+){0,1}' '[^[:alnum:][:cntrl:].;:_]|[[:space:]]|$' dim
         ###colorit '^|[[:space:]]|[^[:alnum:][:cntrl:].:;_]' '0x[a-f0-9]+|#?0|([a-f0-9 ]){2,3}+|xxx#?[1-9][0-9]*(\.[0-9]+){0,1}xxx' '$|[^[:alnum:][:cntrl:][:space:].;:_]' red
         #colorit '^|[[:space:]]|[^[:alnum:][:cntrl:].:;_,]' '[0-9]{1,3}(,[0-9]{3}){1,}|0x[a-f0-9]+|#?0|([a-f0-9]{2} ?){4,}|#?[1-9][0-9]*(\.[0-9]+){0,1}' '[^[:alnum:][:cntrl:].;:_,]|[[:space:]]|$' dim # frustratingly doesn't highlight final hex pair if spaced
@@ -120,7 +123,7 @@ function colorit {
         # ^ paths in optional '' (hmm, something wrong with escaping '? had to switch quotes and escape " instead)
         colorit '^[[:space:]]{0,}' '(%?[[:alpha:]][_/:]?[[:alpha:]]{1,}(%|[0-9])?[[:space:]]{2,200}%?[[:alpha:]]{0,}){2,}' '[[:space:]]{0,}$' underline
         # ^ table headings
-        colorit '.\b' '(online$|ok$|up|running|yes$|done$|enabled$)' '\b' green
+        colorit '.\b' '(online([^[:alnum:]]*|'${escmatch}')*$|ok$|up|running|yes$|done$|enabled$)' '\b' green
         #colorit '^|[^[:alnum:][:space:]_][[:space:]]*' '(critical|error|faulted)\b' '' error
         colorit '.\b' '(critical|error|faulted)' '\b' error
         colorit '.\b' '(bug|fault|segfault|crash|degraded$|disabled$)' '\b' warning
@@ -202,7 +205,7 @@ function colorit {
 colorit
 
 cmd=(sed ${SEDOPT} -E)
-cmd+=(-e s/\\r$//) # dos2unix
+cmd+=(-e s/\\n\\r$/\\n/) # dos2unix
 for ix in ${!a_matchstrings[*]}
 do
     thiscmd=-e\ "s/((${a_lookaheads[$ix]})(${a_matchstrings[$ix]})(${a_lookbehinds[$ix]}))/\2${!a_colornames[$ix]}\3${!a_colorendnames[$ix]}\\${a_lookbehindcaptures[$ix]}/gI"
